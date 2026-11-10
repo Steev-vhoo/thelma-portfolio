@@ -135,9 +135,11 @@ export default async function Home() {
             </Reveal>
             <Reveal className="toolkit">
               {toolkit.map((t) => (
-                <span key={t} className="tool">
-                  <span className="tool__ico" aria-hidden>{t.replace("Google ", "G").replace("Meta Business Suite", "M").slice(0, 2)}</span>
-                  {t}
+                <span key={t.name} className="tool">
+                  <span className="tool__ico">
+                    <Image src={t.logo} alt="" width={36} height={36} unoptimized={t.logo.endsWith(".svg")} />
+                  </span>
+                  {t.name}
                 </span>
               ))}
             </Reveal>

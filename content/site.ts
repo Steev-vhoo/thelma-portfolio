@@ -20,7 +20,7 @@ export const site = {
   drive: {
     // Sub-folders of the projects folder to leave out of the Projects grid (not case-sensitive).
     // Videos are always shown in the Videos section instead, wherever they are.
-    hideFolders: ["Pictures"],
+    hideFolders: ["Pictures", "Certificates"],
   },
 };
 
@@ -46,20 +46,22 @@ export const skills = [
   "Canva Design",
 ];
 
+// Logos live in public/images/tools/. Canva → ChatGPT come from Thelma's portfolio deck;
+// Semrush is from Simple Icons (simpleicons.org).
 export const toolkit = [
-  "Canva",
-  "Google Analytics",
-  "Google Search Console",
-  "Meta Business Suite",
-  "Google Ads",
-  "Mailchimp",
-  "Google Trends",
-  "CapCut",
-  "Facebook",
-  "Instagram",
-  "Google Sheets",
-  "ChatGPT",
-  "Semrush",
+  { name: "Canva", logo: "/images/tools/canva.webp" },
+  { name: "Google Analytics", logo: "/images/tools/google-analytics.webp" },
+  { name: "Google Search Console", logo: "/images/tools/google-search-console.webp" },
+  { name: "Meta Business Suite", logo: "/images/tools/meta-business-suite.webp" },
+  { name: "Google Ads", logo: "/images/tools/google-ads.webp" },
+  { name: "Mailchimp", logo: "/images/tools/mailchimp.webp" },
+  { name: "Google Trends", logo: "/images/tools/google-trends.webp" },
+  { name: "CapCut", logo: "/images/tools/capcut.webp" },
+  { name: "Facebook", logo: "/images/tools/facebook.webp" },
+  { name: "Instagram", logo: "/images/tools/instagram.webp" },
+  { name: "Google Sheets", logo: "/images/tools/google-sheets.webp" },
+  { name: "ChatGPT", logo: "/images/tools/chatgpt.webp" },
+  { name: "Semrush", logo: "/images/tools/semrush.svg" },
 ];
 
 export type Stat = { label: string; value: string; note: string; tone: "dark" | "light" | "lilac" | "violet" | "blue" | "gold" };
