@@ -34,7 +34,7 @@ File names become card titles (`My_Campaign-Brief.pdf` becomes "My Campaign Brie
 softened to Title Case), so give files descriptive, unique names.
 
 A file's **Description** in Drive (right-click → File information → Details) appears on its card.
-New files show up on the site within about 30 minutes.
+New files show up on the site within about 5 minutes. Files can sit in sub-folders up to 3 levels deep, and Drive shortcuts work as long as the original file is shared too.
 
 ## Videos (from Google Drive)
 

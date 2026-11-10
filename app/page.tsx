@@ -8,7 +8,7 @@ import { Arrow, FileText, Folder, LinkedIn, Mail, Phone, Video } from "@/compone
 import { caseStudies, certificates, site, skills, toolkit } from "@/content/site";
 import { describe, getDriveProjects, getDriveVideos } from "@/lib/drive";
 
-export const revalidate = 1800; // re-check Google Drive every 30 min
+export const revalidate = 300; // re-check Google Drive every 5 min
 
 export default async function Home() {
   const [drive, vids] = await Promise.all([getDriveProjects(), getDriveVideos(6)]);

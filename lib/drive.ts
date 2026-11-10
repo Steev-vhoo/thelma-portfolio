@@ -42,7 +42,10 @@ export type VideoResult =
 
 const API = "https://www.googleapis.com/drive/v3/files";
 const FOLDER = "application/vnd.google-apps.folder";
-const REVALIDATE = 60 * 30; // refresh every 30 minutes
+const REVALIDATE = 60 * 5; // re-ask Drive at most every 5 minutes
+const SHORTCUT = "application/vnd.google-apps.shortcut";
+const MAX_DEPTH = 3; // how many folder levels below the chosen folder are searched
+const FIELDS = "id,name,mimeType,description,modifiedTime,createdTime,webViewLink,videoMediaMetadata,shortcutDetails";
 
 type RawFile = {
   id: string;
@@ -53,29 +56,24 @@ type RawFile = {
   createdTime?: string;
   webViewLink?: string;
   videoMediaMetadata?: { width?: number; height?: number; durationMillis?: string };
+  shortcutDetails?: { targetId?: string; targetMimeType?: string };
 };
 
 type Item = { file: RawFile; folder: string };
 
 /** `code` is safe to show (HTTP status + Google's reason, e.g. "403 API_KEY_SERVICE_BLOCKED"). */
 class DriveError extends Error {
-  constructor(public code: string, detail: string) {
+  code: string;
+  constructor(code: string, detail: string) {
     super(`Drive API ${code}: ${detail}`);
+    this.code = code;
   }
 }
 const codeOf = (err: unknown) => (err instanceof DriveError ? err.code : "network");
 
-async function listChildren(folderId: string, key: string): Promise<RawFile[]> {
-  const params = new URLSearchParams({
-    q: `'${folderId}' in parents and trashed = false`,
-    key,
-    pageSize: "200",
-    orderBy: "modifiedTime desc",
-    fields: "files(id,name,mimeType,description,modifiedTime,createdTime,webViewLink,videoMediaMetadata)",
-    supportsAllDrives: "true",
-    includeItemsFromAllDrives: "true",
-  });
-  const res = await fetch(`${API}?${params}`, { next: { revalidate: REVALIDATE } });
+async function driveGet<T>(path: string, params: Record<string, string>, key: string): Promise<T> {
+  const qs = new URLSearchParams({ ...params, key, supportsAllDrives: "true" });
+  const res = await fetch(`${API}${path}?${qs}`, { next: { revalidate: REVALIDATE } });
   if (!res.ok) {
     const body = await res.text();
     let reason = "";
@@ -85,22 +83,65 @@ async function listChildren(folderId: string, key: string): Promise<RawFile[]> {
     } catch {}
     throw new DriveError(`${res.status}${reason ? ` ${reason}` : ""}`, body.slice(0, 300));
   }
-  const data = (await res.json()) as { files?: RawFile[] };
-  return data.files ?? [];
+  return (await res.json()) as T;
 }
 
-/** Root files (folder = "") plus files one level down (folder = sub-folder name). */
-async function listTree(folderId: string, key: string): Promise<{ items: Item[]; folders: string[] }> {
-  const root = await listChildren(folderId, key);
-  const subfolders = root.filter((f) => f.mimeType === FOLDER);
-  const items: Item[] = root.filter((f) => f.mimeType !== FOLDER).map((file) => ({ file, folder: "" }));
-  const nested = await Promise.all(
-    subfolders.map(async (sf) =>
-      (await listChildren(sf.id, key)).filter((c) => c.mimeType !== FOLDER).map((file) => ({ file, folder: sf.name })),
-    ),
+/** Every item directly inside a folder (all pages), with shortcuts swapped for what they point to. */
+async function listChildren(folderId: string, key: string): Promise<RawFile[]> {
+  const files: RawFile[] = [];
+  let pageToken = "";
+  do {
+    const data = await driveGet<{ files?: RawFile[]; nextPageToken?: string }>(
+      "",
+      {
+        q: `'${folderId}' in parents and trashed = false`,
+        pageSize: "1000",
+        orderBy: "modifiedTime desc",
+        fields: `nextPageToken,files(${FIELDS})`,
+        includeItemsFromAllDrives: "true",
+        ...(pageToken ? { pageToken } : {}),
+      },
+      key,
+    );
+    files.push(...(data.files ?? []));
+    pageToken = data.nextPageToken ?? "";
+  } while (pageToken);
+
+  return Promise.all(
+    files.map(async (f) => {
+      const target = f.mimeType === SHORTCUT ? f.shortcutDetails?.targetId : undefined;
+      if (!target) return f;
+      try {
+        const real = await driveGet<RawFile>(`/${target}`, { fields: FIELDS }, key);
+        return { ...real, name: f.name || real.name };
+      } catch {
+        return f; // target not shared publicly — leave it out (it isn't a recognised type)
+      }
+    }),
   );
-  nested.forEach((group) => items.push(...group));
-  return { items, folders: subfolders.map((f) => f.name) };
+}
+
+/**
+ * Files in a folder and its sub-folders (up to MAX_DEPTH levels).
+ * `folder` is the top-level sub-folder a file sits under ("" for files at the root) — used as the category.
+ */
+async function listTree(folderId: string, key: string): Promise<{ items: Item[]; folders: string[] }> {
+  const items: Item[] = [];
+  const seen = new Set<string>([folderId]);
+
+  async function walk(id: string, category: string, depth: number): Promise<RawFile[]> {
+    const children = await listChildren(id, key);
+    const subfolders = children.filter((c) => c.mimeType === FOLDER && !seen.has(c.id));
+    subfolders.forEach((c) => seen.add(c.id));
+    children.filter((c) => c.mimeType !== FOLDER).forEach((file) => items.push({ file, folder: category }));
+    if (depth < MAX_DEPTH) {
+      await Promise.all(subfolders.map((sf) => walk(sf.id, category || sf.name, depth + 1)));
+    }
+    return subfolders;
+  }
+
+  const top = await walk(folderId, "", 0);
+  return { items, folders: top.map((f) => f.name) };
 }
 
 const isVideo = (f: RawFile) => f.mimeType.startsWith("video/");
