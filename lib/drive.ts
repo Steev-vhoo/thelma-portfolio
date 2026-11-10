@@ -1,3 +1,7 @@
+import { site } from "@/content/site";
+
+const siteDrive = site.drive;
+
 // Reads publicly shared Google Drive folders with an API key.
 // Projects: sub-folders become categories; files directly in the root fall under "More".
 // Videos: every video file in the videos folder (and its sub-folders).
@@ -112,8 +116,19 @@ function kindOf(mime: string): string {
   return "File";
 }
 
+/** "ASSIGNMENTS" → "Assignments"; mixed-case text is left alone. */
+function tidyCase(text: string) {
+  if (text !== text.toUpperCase() || !/[A-Z]{2}/.test(text)) return text;
+  return text.toLowerCase().replace(/\b([a-z])/g, (c) => c.toUpperCase());
+}
+
 function cleanName(name: string) {
-  return name.replace(/\.(pdf|pptx?|docx?|xlsx?|png|jpe?g|webp|mp4|mov|m4v|webm|avi|mkv)$/i, "").replace(/[_-]+/g, " ").trim();
+  const base = name
+    .replace(/\.(pdf|pptx?|docx?|xlsx?|png|jpe?g|heic|webp|mp4|mov|m4v|webm|avi|mkv)$/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return tidyCase(base);
 }
 
 function formatDuration(ms?: string) {
@@ -174,15 +189,16 @@ function config() {
 const folderUrl = (id: string) => `https://drive.google.com/drive/folders/${id}`;
 
 export async function getDriveProjects(): Promise<DriveResult> {
-  const { key, projects, videos } = config();
+  const { key, projects } = config();
   if (!projects || !key) return { status: "unconfigured" };
 
   try {
     const { items, folders } = await listTree(projects, key);
-    // Without a separate videos folder, videos are shown in the Videos section instead of here.
-    const kept = videos ? items : items.filter((i) => !isVideo(i.file));
-    const files = kept.map((i) => toFile(i.file, i.folder || "More"));
-    const categories = [...folders, "More"].filter((c) => files.some((f) => f.category === c));
+    // Videos always live in the Videos section; folders listed in site.drive.hideFolders are skipped.
+    const hidden = new Set(siteDrive.hideFolders.map((f) => f.toLowerCase()));
+    const kept = items.filter((i) => !isVideo(i.file) && !hidden.has(i.folder.toLowerCase()));
+    const files = kept.map((i) => toFile(i.file, i.folder ? tidyCase(i.folder) : "More"));
+    const categories = [...folders.map(tidyCase), "More"].filter((c) => files.some((f) => f.category === c));
     return { status: "ok", files, categories, folderUrl: folderUrl(projects) };
   } catch (err) {
     console.error("[drive:projects]", err);

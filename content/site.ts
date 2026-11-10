@@ -16,6 +16,12 @@ export const site = {
     resume: "", // e.g. a Google Drive share link or "/Thelma-Naroog-CV.pdf" placed in /public
     location: "Accra, Ghana",
   },
+
+  drive: {
+    // Sub-folders of the projects folder to leave out of the Projects grid (not case-sensitive).
+    // Videos are always shown in the Videos section instead, wherever they are.
+    hideFolders: ["Pictures"],
+  },
 };
 
 export const nav = [

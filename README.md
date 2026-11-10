@@ -26,6 +26,13 @@ case studies and certificates. Photos are in `public/images/`.
    Under the key's restrictions, limit it to the Google Drive API.
 5. Set `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_DRIVE_API_KEY` (see below).
 
+To keep a sub-folder out of the Projects grid (for example a folder of profile photos), add its name to
+`drive.hideFolders` in `content/site.ts`. It is set to `["Pictures"]` by default. Video files never appear in
+Projects, because they have their own section.
+
+File names become card titles (`My_Campaign-Brief.pdf` becomes "My Campaign Brief", and ALL-CAPS names are
+softened to Title Case), so give files descriptive, unique names.
+
 A file's **Description** in Drive (right-click → File information → Details) appears on its card.
 New files show up on the site within about 30 minutes.
 
@@ -35,8 +42,10 @@ The Videos section shows the 6 most recent **video files** (MP4, MOV and so on) 
 
 - **Separate videos folder (recommended):** make a second folder, share it the same way
   (Anyone with the link → Viewer) and set `GOOGLE_DRIVE_VIDEOS_FOLDER_ID` to its ID. Sub-folders are included.
-- **Same folder as projects:** leave `GOOGLE_DRIVE_VIDEOS_FOLDER_ID` empty. Videos in the projects folder are
-  shown in the Videos section and left out of the Projects grid, so nothing appears twice.
+- **Same folder as projects:** leave `GOOGLE_DRIVE_VIDEOS_FOLDER_ID` empty, and the videos in the projects folder
+  are shown here instead.
+
+Either way, videos never appear in the Projects grid, so nothing shows twice.
 
 Each video plays in the page with Drive's player. The file name becomes the title (`_` and `-` become spaces,
 and the extension is removed), the Drive **Description** appears under it, and the length is shown on the thumbnail.
