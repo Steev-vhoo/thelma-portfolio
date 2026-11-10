@@ -169,7 +169,7 @@ p { margin: 0; }
 }
 .hero__wave { position: absolute; inset: auto -10% -2px -10%; width: 120%; height: 46%; opacity: 0.55; pointer-events: none; }
 .hero__grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(30px, 5vw, 70px); align-items: center; }
-.hero h1 { color: var(--white); font-size: clamp(2.8rem, 7.4vw, 5.8rem); font-weight: 800; margin: 22px 0 0; letter-spacing: -0.035em; }
+.hero h1 { color: var(--white); font-size: clamp(2.8rem, 7.4vw, 5.8rem); font-weight: 800; margin: 0; letter-spacing: -0.035em; }
 .hero h1 .hey { display: inline-block; color: var(--gold); }
 .hero h1 .hey span { display: inline-block; animation: hop 2.6s var(--bounce) infinite; }
 .hero h1 .hey span:nth-child(2) { animation-delay: 0.08s; }
@@ -178,8 +178,6 @@ p { margin: 0; }
 .hero h1 .hey span:nth-child(5) { animation-delay: 0.32s; }
 .hero h1 .hey span:nth-child(6) { animation-delay: 0.4s; }
 @keyframes hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-0.16em); } }
-.wave-hand { display: inline-block; transform-origin: 70% 80%; animation: wave 2.4s ease-in-out infinite; }
-@keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(16deg); } 20%, 40% { transform: rotate(-8deg); } }
 .hero__sub { font-size: clamp(1.1rem, 1.8vw, 1.35rem); margin-top: 22px; max-width: 34ch; color: #e6e0fa; }
 .hero__sub strong { color: var(--white); font-weight: 600; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }

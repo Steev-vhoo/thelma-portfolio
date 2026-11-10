@@ -31,12 +31,11 @@ export default async function Home() {
           </svg>
           <div className="wrap hero__grid rel">
             <div>
-              <span className="eyebrow">Digital Marketing Portfolio</span>
               <h1>
                 <span className="hey" aria-label="Heyyyy,">
                   {"Heyyyy".split("").map((c, i) => <span key={i} aria-hidden>{c}</span>)}
                 </span>
-                , <span className="wave-hand" aria-hidden>👋</span>
+                ,
                 <br />I&apos;m {site.firstName}.
               </h1>
               <p className="hero__sub">
