@@ -29,12 +29,12 @@ export type DriveVideo = {
 export type DriveResult =
   | { status: "ok"; files: DriveFile[]; categories: string[]; folderUrl: string }
   | { status: "unconfigured" }
-  | { status: "error"; message: string; folderUrl?: string };
+  | { status: "error"; message: string; code: string; folderUrl?: string };
 
 export type VideoResult =
   | { status: "ok"; videos: DriveVideo[]; folderUrl: string }
   | { status: "unconfigured" }
-  | { status: "error"; message: string; folderUrl?: string };
+  | { status: "error"; message: string; code: string; folderUrl?: string };
 
 const API = "https://www.googleapis.com/drive/v3/files";
 const FOLDER = "application/vnd.google-apps.folder";
@@ -53,6 +53,14 @@ type RawFile = {
 
 type Item = { file: RawFile; folder: string };
 
+/** `code` is safe to show (HTTP status + Google's reason, e.g. "403 API_KEY_SERVICE_BLOCKED"). */
+class DriveError extends Error {
+  constructor(public code: string, detail: string) {
+    super(`Drive API ${code}: ${detail}`);
+  }
+}
+const codeOf = (err: unknown) => (err instanceof DriveError ? err.code : "network");
+
 async function listChildren(folderId: string, key: string): Promise<RawFile[]> {
   const params = new URLSearchParams({
     q: `'${folderId}' in parents and trashed = false`,
@@ -66,7 +74,12 @@ async function listChildren(folderId: string, key: string): Promise<RawFile[]> {
   const res = await fetch(`${API}?${params}`, { next: { revalidate: REVALIDATE } });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Drive API ${res.status}: ${body.slice(0, 200)}`);
+    let reason = "";
+    try {
+      const j = JSON.parse(body);
+      reason = j?.error?.details?.[0]?.reason || j?.error?.errors?.[0]?.reason || j?.error?.status || "";
+    } catch {}
+    throw new DriveError(`${res.status}${reason ? ` ${reason}` : ""}`, body.slice(0, 300));
   }
   const data = (await res.json()) as { files?: RawFile[] };
   return data.files ?? [];
@@ -164,7 +177,7 @@ export async function getDriveProjects(): Promise<DriveResult> {
     return { status: "ok", files, categories, folderUrl: folderUrl(projects) };
   } catch (err) {
     console.error("[drive:projects]", err);
-    return { status: "error", message: "Couldn't reach Google Drive right now.", folderUrl: folderUrl(projects) };
+    return { status: "error", message: "Couldn't reach Google Drive right now.", code: codeOf(err), folderUrl: folderUrl(projects) };
   }
 }
 
@@ -184,6 +197,13 @@ export async function getDriveVideos(limit = 6): Promise<VideoResult> {
     return { status: "ok", videos: list, folderUrl: folderUrl(source) };
   } catch (err) {
     console.error("[drive:videos]", err);
-    return { status: "error", message: "Couldn't load videos right now.", folderUrl: folderUrl(source) };
+    return { status: "error", message: "Couldn't load videos right now.", code: codeOf(err), folderUrl: folderUrl(source) };
   }
+}
+
+/** Non-secret one-liner for the page's data-drive attribute — handy when checking a deploy. */
+export function describe(r: DriveResult | VideoResult): string {
+  if (r.status === "unconfigured") return "unconfigured";
+  if (r.status === "error") return `error ${r.code}`;
+  return `ok ${"files" in r ? r.files.length : r.videos.length}`;
 }

@@ -6,7 +6,7 @@ import ProjectsGrid from "@/components/ProjectsGrid";
 import VideoCard from "@/components/VideoCard";
 import { Arrow, FileText, Folder, LinkedIn, Mail, Phone, Video } from "@/components/Icons";
 import { caseStudies, certificates, site, skills, toolkit } from "@/content/site";
-import { getDriveProjects, getDriveVideos } from "@/lib/drive";
+import { describe, getDriveProjects, getDriveVideos } from "@/lib/drive";
 
 export const revalidate = 1800; // re-check Google Drive every 30 min
 
@@ -203,7 +203,7 @@ export default async function Home() {
         </section>
 
         {/* ───────── Google Drive projects ───────── */}
-        <section className="section" id="projects">
+        <section className="section" id="projects" data-drive={describe(drive)}>
           <div className="blob" style={{ width: 420, height: 420, right: -160, top: -100, background: "var(--lilac)" }} />
           <div className="blob" style={{ width: 260, height: 260, left: -100, bottom: -60, background: "#f7ecc4" }} />
           <div className="wrap rel">
@@ -239,7 +239,7 @@ export default async function Home() {
         </section>
 
         {/* ───────── Videos (Google Drive) ───────── */}
-        <section className="section section--dark" id="videos">
+        <section className="section section--dark" id="videos" data-drive={describe(vids)}>
           <div className="blob" style={{ width: 500, height: 500, left: -200, top: -150, background: "#1f1640" }} />
           <div className="wrap rel">
             <Reveal className="section-head">
