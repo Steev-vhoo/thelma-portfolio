@@ -4,7 +4,7 @@ import Bubbles from "@/components/Bubbles";
 import Reveal from "@/components/Reveal";
 import ProjectsGrid from "@/components/ProjectsGrid";
 import VideoCard from "@/components/VideoCard";
-import { Arrow, FileText, Folder, LinkedIn, Mail, Phone, Video } from "@/components/Icons";
+import { Arrow, Facebook, FileText, Folder, Instagram, LinkedIn, Mail, Phone, Video } from "@/components/Icons";
 import { caseStudies, certificates, site, skills, toolkit } from "@/content/site";
 import { describe, getDriveProjects, getDriveVideos } from "@/lib/drive";
 
@@ -13,6 +13,11 @@ export const revalidate = 300; // re-check Google Drive every 5 min
 export default async function Home() {
   const [drive, vids] = await Promise.all([getDriveProjects(), getDriveVideos(6)]);
   const { contact } = site;
+  const socials = [
+    { label: "LinkedIn", href: contact.linkedin, handle: "in/thelmanaroog", Icon: LinkedIn },
+    { label: "Instagram", href: contact.instagram, handle: "@ba_man_teeh", Icon: Instagram },
+    { label: "Facebook", href: contact.facebook, handle: "Thelma Naroog", Icon: Facebook },
+  ].filter((s) => s.href);
 
   return (
     <>
@@ -321,20 +326,23 @@ export default async function Home() {
               <a className="contact-card" href={`mailto:${contact.email}`}>
                 <span className="contact-card__dot"><Mail /></span>
                 <span className="contact-card__label">Email</span>
-                <span className="contact-card__value">{contact.email}</span>
+                <span className="contact-card__value">
+                  {contact.email.split("@")[0]}
+                  <wbr />@{contact.email.split("@")[1]}
+                </span>
               </a>
               <a className="contact-card" href={`tel:${contact.phone.replace(/\s/g, "")}`}>
                 <span className="contact-card__dot"><Phone /></span>
                 <span className="contact-card__label">Phone</span>
                 <span className="contact-card__value">{contact.phone}</span>
               </a>
-              {contact.linkedin && (
-                <a className="contact-card" href={contact.linkedin} target="_blank" rel="noopener noreferrer">
-                  <span className="contact-card__dot"><LinkedIn /></span>
-                  <span className="contact-card__label">LinkedIn</span>
-                  <span className="contact-card__value">Connect with me</span>
+              {socials.map(({ label, href, handle, Icon }) => (
+                <a key={label} className="contact-card" href={href} target="_blank" rel="noopener noreferrer">
+                  <span className="contact-card__dot"><Icon /></span>
+                  <span className="contact-card__label">{label}</span>
+                  <span className="contact-card__value">{handle}</span>
                 </a>
-              )}
+              ))}
               {contact.resume && (
                 <a className="contact-card" href={contact.resume} target="_blank" rel="noopener noreferrer">
                   <span className="contact-card__dot"><FileText /></span>
@@ -352,6 +360,14 @@ export default async function Home() {
       <footer className="footer">
         <div className="wrap">
           <span>© {new Date().getFullYear()} {site.name}</span>
+          <nav className="footer__social" aria-label="Social media">
+            {socials.map(({ label, href, Icon }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`${site.firstName} on ${label}`}>
+                <Icon />
+              </a>
+            ))}
+            <a href={`mailto:${contact.email}`} aria-label={`Email ${site.firstName}`}><Mail /></a>
+          </nav>
           <span>Made with curiosity &amp; lots of bubbles ✦ <a href="#top">Back to top ↑</a></span>
         </div>
       </footer>

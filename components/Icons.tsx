@@ -9,3 +9,5 @@ export const FileText = (p: P) => (<svg {...base} {...p}><path d="M14 3H7a2 2 0 
 export const Folder = (p: P) => (<svg {...base} {...p}><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>);
 export const Play = (p: P) => (<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...p}><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" /></svg>);
 export const Video = (p: P) => (<svg {...base} {...p}><rect x="2" y="5" width="15" height="14" rx="3" /><path d="m17 10 5-3v10l-5-3" /></svg>);
+export const Instagram = (p: P) => (<svg {...base} {...p}><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><path d="M17.5 6.5v.01" /></svg>);
+export const Facebook = (p: P) => (<svg {...base} {...p}><path d="M15 3h-2a4 4 0 0 0-4 4v3H6v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2z" /></svg>);

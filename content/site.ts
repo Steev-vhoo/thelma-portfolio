@@ -12,7 +12,10 @@ export const site = {
   contact: {
     email: "tnaroog@gmail.com",
     phone: "+233 20 250 8302",
-    linkedin: "", // e.g. "https://www.linkedin.com/in/your-handle" — card hides while empty
+    // Social cards/links hide while a value is empty.
+    linkedin: "https://www.linkedin.com/in/thelmanaroog",
+    instagram: "https://www.instagram.com/ba_man_teeh/",
+    facebook: "https://www.facebook.com/thelma.naroog.9/",
     resume: "", // e.g. a Google Drive share link or "/Thelma-Naroog-CV.pdf" placed in /public
     location: "Accra, Ghana",
   },
