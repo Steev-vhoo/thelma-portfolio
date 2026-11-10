@@ -155,10 +155,19 @@ function toVideo(f: RawFile): DriveVideo {
   };
 }
 
+/** Accepts a bare ID, an ID with "?usp=sharing" stuck on, or a full folder URL. */
+function folderIdFrom(value?: string) {
+  if (!value) return undefined;
+  const v = value.trim();
+  const fromUrl = v.match(/\/folders\/([\w-]+)/) || v.match(/[?&]id=([\w-]+)/);
+  const id = (fromUrl ? fromUrl[1] : v.split(/[?#/\s]/)[0]).trim();
+  return id || undefined;
+}
+
 function config() {
-  const key = process.env.GOOGLE_DRIVE_API_KEY;
-  const projects = process.env.GOOGLE_DRIVE_FOLDER_ID;
-  const videos = process.env.GOOGLE_DRIVE_VIDEOS_FOLDER_ID;
+  const key = process.env.GOOGLE_DRIVE_API_KEY?.trim();
+  const projects = folderIdFrom(process.env.GOOGLE_DRIVE_FOLDER_ID);
+  const videos = folderIdFrom(process.env.GOOGLE_DRIVE_VIDEOS_FOLDER_ID);
   return { key, projects, videos };
 }
 
