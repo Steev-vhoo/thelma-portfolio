@@ -4,7 +4,7 @@ A bubbly, single-page portfolio built with **Next.js 16 (App Router)**, ready fo
 The colours and copy come from Thelma's portfolio deck: deep purple, violet, electric blue and gold.
 
 **Sections:** Hero (with bubbles you can pop) · About · Skills · Toolkit · Featured Work (case studies) ·
-Projects (live from Google Drive) · Videos (live from YouTube) · Certifications · Contact
+Projects (live from Google Drive) · Videos (also live from Google Drive) · Certifications · Contact
 
 ---
 
@@ -29,13 +29,23 @@ case studies and certificates. Photos are in `public/images/`.
 A file's **Description** in Drive (right-click → File information → Details) appears on its card.
 New files show up on the site within about 30 minutes.
 
-## Connect YouTube (Videos section)
+## Videos (from Google Drive)
 
-Set `YOUTUBE_CHANNEL_ID` to the channel ID (it starts with `UC…`; find it at
-YouTube → Settings → Advanced settings). No API key is needed, because the site reads the channel's public feed.
-The 6 latest uploads appear within about an hour of publishing.
+The Videos section shows the 6 most recent **video files** (MP4, MOV and so on) from Google Drive. Pick one setup:
 
-Until these are set, both sections show a friendly "coming soon" card, so the site is safe to deploy right away.
+- **Separate videos folder (recommended):** make a second folder, share it the same way
+  (Anyone with the link → Viewer) and set `GOOGLE_DRIVE_VIDEOS_FOLDER_ID` to its ID. Sub-folders are included.
+- **Same folder as projects:** leave `GOOGLE_DRIVE_VIDEOS_FOLDER_ID` empty. Videos in the projects folder are
+  shown in the Videos section and left out of the Projects grid, so nothing appears twice.
+
+Each video plays in the page with Drive's player. The file name becomes the title (`_` and `-` become spaces,
+and the extension is removed), the Drive **Description** appears under it, and the length is shown on the thumbnail.
+Upright (9:16) reels are letterboxed rather than cropped.
+
+> Drive needs a few minutes to process a new upload before its thumbnail and player work.
+> Very large or long videos may show Drive's "can't preview" notice; anything under about 100 MB is safe.
+
+Until the Drive settings are filled in, both sections show a friendly "coming soon" card, so the site is safe to deploy right away.
 
 ## Run locally
 
@@ -48,6 +58,6 @@ npm run dev                  # http://localhost:3000
 ## Deploy on Vercel
 
 1. [vercel.com/new](https://vercel.com/new) → import `Steev-vhoo/thelma-portfolio` (Vercel detects Next.js; keep the defaults).
-2. **Settings → Environment Variables**: add `GOOGLE_DRIVE_FOLDER_ID`, `GOOGLE_DRIVE_API_KEY`, `YOUTUBE_CHANNEL_ID`.
+2. **Settings → Environment Variables**: add `GOOGLE_DRIVE_FOLDER_ID`, `GOOGLE_DRIVE_API_KEY` and (optionally) `GOOGLE_DRIVE_VIDEOS_FOLDER_ID`.
 3. Deploy. Every push to `main` redeploys.
 4. After the first deploy, put the live URL (or custom domain) into `site.url` in `content/site.ts` so link previews work.

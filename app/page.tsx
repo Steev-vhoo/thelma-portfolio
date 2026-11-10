@@ -6,13 +6,12 @@ import ProjectsGrid from "@/components/ProjectsGrid";
 import VideoCard from "@/components/VideoCard";
 import { Arrow, FileText, Folder, LinkedIn, Mail, Phone, Video } from "@/components/Icons";
 import { caseStudies, certificates, site, skills, toolkit } from "@/content/site";
-import { getDriveProjects } from "@/lib/drive";
-import { getRecentVideos } from "@/lib/youtube";
+import { getDriveProjects, getDriveVideos } from "@/lib/drive";
 
-export const revalidate = 1800; // re-check Drive + YouTube every 30 min
+export const revalidate = 1800; // re-check Google Drive every 30 min
 
 export default async function Home() {
-  const [drive, yt] = await Promise.all([getDriveProjects(), getRecentVideos(6)]);
+  const [drive, vids] = await Promise.all([getDriveProjects(), getDriveVideos(6)]);
   const { contact } = site;
 
   return (
@@ -239,30 +238,39 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ───────── YouTube ───────── */}
+        {/* ───────── Videos (Google Drive) ───────── */}
         <section className="section section--dark" id="videos">
           <div className="blob" style={{ width: 500, height: 500, left: -200, top: -150, background: "#1f1640" }} />
           <div className="wrap rel">
             <Reveal className="section-head">
-              <span className="eyebrow">On YouTube</span>
+              <span className="eyebrow">Video reel</span>
               <h2 className="h2">Recent videos</h2>
-              <p className="lede">Tips, breakdowns and behind-the-scenes from my marketing journey. Grab a snack and hit play.</p>
+              <p className="lede">Reels, edits and behind-the-scenes from my marketing journey. Grab a snack and hit play.</p>
             </Reveal>
-            {yt.status === "ok" && yt.videos.length > 0 ? (
+            {vids.status === "ok" && vids.videos.length > 0 ? (
               <>
                 <div className="videos">
-                  {yt.videos.map((v, i) => <VideoCard key={v.id} video={v} priority={i === 0} />)}
+                  {vids.videos.map((v, i) => <VideoCard key={v.id} video={v} priority={i === 0} />)}
                 </div>
                 <div className="more">
-                  <a className="btn" href={contact.youtube || yt.channelUrl} target="_blank" rel="noopener noreferrer"><Video /> Subscribe on YouTube</a>
+                  <a className="btn" href={vids.folderUrl} target="_blank" rel="noopener noreferrer"><Video /> See all videos</a>
                 </div>
               </>
             ) : (
               <div className="empty">
                 <span className="empty__icon"><Video /></span>
                 <div>
-                  <h3 style={{ color: "var(--white)" }}>Lights, camera… coming soon!</h3>
-                  <p>New videos will pop up here automatically as soon as they&apos;re live.</p>
+                  <h3 style={{ color: "var(--white)" }}>
+                    {vids.status === "error" ? "The video reel is taking a quick break" : "Lights, camera… coming soon!"}
+                  </h3>
+                  <p>
+                    {vids.status === "error"
+                      ? "I couldn't reach Google Drive just now — refresh in a moment."
+                      : "New videos will pop up here automatically as soon as they're ready."}
+                  </p>
+                  {vids.status === "error" && vids.folderUrl && (
+                    <p style={{ marginTop: 14 }}><a className="btn" href={vids.folderUrl} target="_blank" rel="noopener noreferrer">Open the folder <Arrow /></a></p>
+                  )}
                 </div>
               </div>
             )}

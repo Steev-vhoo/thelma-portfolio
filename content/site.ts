@@ -14,7 +14,6 @@ export const site = {
     phone: "+233 20 250 8302",
     linkedin: "", // e.g. "https://www.linkedin.com/in/your-handle" — card hides while empty
     resume: "", // e.g. a Google Drive share link or "/Thelma-Naroog-CV.pdf" placed in /public
-    youtube: "", // e.g. "https://www.youtube.com/@yourhandle" — used for the Subscribe button
     location: "Accra, Ghana",
   },
 };
